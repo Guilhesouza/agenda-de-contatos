@@ -63,14 +63,21 @@ public class Controller extends HttpServlet {
 	}
 
 	// Editar contato
-	protected void listarContato(HttpServletRequest request, HttpServletResponse response) {
+	protected void listarContato(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// Recebimento do id do contato que será editado
 		String idcon = request.getParameter("idcon");
 		// Setar a variável JavaBeans
 		contato.setIdcon(idcon);
 		// Executar o método selecionarContato (DAO)
 		dao.selecionarContato(contato);
-		
+		// Setar os atributos do formuilário com o conteúdo JavaBeans
+		request.setAttribute("idcon", contato.getIdcon());
+		request.setAttribute("nome", contato.getNome());
+		request.setAttribute("fone", contato.getFone());
+		request.setAttribute("email", contato.getEmail());
+		// Encaminhar ao documento editar.jsp
+		RequestDispatcher rd = request.getRequestDispatcher("editar.jsp");
+		rd.forward(request, response);
 	}
 
 }

@@ -97,7 +97,7 @@ public class Controller extends HttpServlet {
 		// redirecionar para o documento agenda.jsp (atualizando as alterações)
 		response.sendRedirect("main");
 	}
-
+	
 	// Remover Contato
 	protected void removerContato(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {

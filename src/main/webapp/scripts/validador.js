@@ -1,5 +1,5 @@
 /**
- * Validação de formulário
+ * Validar o formulário
  *@author Guilherme Augusto
  */
 

@@ -32,11 +32,10 @@ public class Controller extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String action = request.getServletPath();
-		System.out.println(action);
 		if (action.equals("/main")) {
 			contatos(request, response);
 		} else if (action.equals("/insert")) {
-			novoContato(request, response);
+			adicionarContato(request, response);
 		} else if (action.equals("/select")) {
 			listarContato(request, response);
 		} else if (action.equals("/update")) {
@@ -50,100 +49,69 @@ public class Controller extends HttpServlet {
 		}
 	}
 
-	// Listar contatos
 	protected void contatos(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// Criando um objeto que irá receber os dados JavaBeans
 		ArrayList<JavaBeans> lista = dao.listarContatos();
-		// Encaminhar a lista ao documento agenda.jsp
 		request.setAttribute("contatos", lista);
 		RequestDispatcher rd = request.getRequestDispatcher("agenda.jsp");
 		rd.forward(request, response);
 	}
 
-	// Novo contato
-	protected void novoContato(HttpServletRequest request, HttpServletResponse response)
+	protected void adicionarContato(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// setar as variáveis JavaBeans
 		contato.setNome(request.getParameter("nome"));
 		contato.setFone(request.getParameter("fone"));
 		contato.setEmail(request.getParameter("email"));
-		// invocar o método inserirContato passando o objeto contato
 		dao.inserirContato(contato);
-		// redirecionar para o documento agenda.jsp
 		response.sendRedirect("main");
 	}
 
-	// Editar contato
 	protected void listarContato(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// Recebimento do id do contato que será editado
-		String idcon = request.getParameter("idcon");
-		// Setar a variável JavaBeans
-		contato.setIdcon(idcon);
-		// Executar o método selecionarContato (DAO)
+		contato.setIdcon(request.getParameter("idcon"));
 		dao.selecionarContato(contato);
-		// Setar os atributos do formuilário com o conteúdo JavaBeans
 		request.setAttribute("idcon", contato.getIdcon());
 		request.setAttribute("nome", contato.getNome());
 		request.setAttribute("fone", contato.getFone());
 		request.setAttribute("email", contato.getEmail());
-		// Encaminhar ao documento editar.jsp
 		RequestDispatcher rd = request.getRequestDispatcher("editar.jsp");
 		rd.forward(request, response);
 	}
 
 	protected void editarContato(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// setar as variáveis JavaBeans
 		contato.setIdcon(request.getParameter("idcon"));
 		contato.setNome(request.getParameter("nome"));
 		contato.setFone(request.getParameter("fone"));
 		contato.setEmail(request.getParameter("email"));
-		// executar o método alterarContato
 		dao.alterarContato(contato);
-		// redirecionar para o documento agenda.jsp (atualizando as alterações)
 		response.sendRedirect("main");
 	}
 
-	// Remover Contato
 	protected void removerContato(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// recebimento do id do contato a ser excluído (validador.js)
-		String idcon = request.getParameter("idcon");
-		// setar a variável JavaBeans
-		contato.setIdcon(idcon);
-		// executar o método deletarContato (DAO) passando o objeto contato
+		contato.setIdcon(request.getParameter("idcon"));
 		dao.deletarContato(contato);
-		// redirecionar para o documento agenda.jsp (atualizando as alterações)
 		response.sendRedirect("main");
 	}
-	
-	// Gerar relatório em PDF
+
 	protected void gerarRelatorio(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		Document documento = new Document();
 		try {
-			// tipo de conteúdo
 			response.setContentType("apllication/pdf");
-			// nome do documento
 			response.addHeader("Content-Disposition", "inline; filename=" + "contatos.pdf");
-			// criar o documento
 			PdfWriter.getInstance(documento, response.getOutputStream());
-			// abrir o documento -> para gerar o conteúdo
 			documento.open();
 			documento.add(new Paragraph("Lista de Contatos:"));
 			documento.add(new Paragraph(" "));
-			// criar uma tabela
 			PdfPTable tabela = new PdfPTable(3);
-			// cabeçalho
 			PdfPCell col1 = new PdfPCell(new Paragraph("Nome"));
 			PdfPCell col2 = new PdfPCell(new Paragraph("Fone"));
 			PdfPCell col3 = new PdfPCell(new Paragraph("E-mail"));
 			tabela.addCell(col1);
 			tabela.addCell(col2);
 			tabela.addCell(col3);
-			// popular a tabela com os contatos
 			ArrayList<JavaBeans> lista = dao.listarContatos();
 			for (int i = 0; i < lista.size(); i++) {
 				tabela.addCell(lista.get(i).getNome());
